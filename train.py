@@ -142,14 +142,14 @@ def get_ds(config):
         ds_raw = load_dataset(f"{config['datasource']}", f"{config['lang_src']}-{config['lang_tgt']}", split='train[:10%]')
     elif config['datasource'] == 'iwslt2017':
         ds_raw = load_dataset(f"{config['datasource']}", f"{config['datasource']}-{config['lang_src']}-{config['lang_tgt']}", split='train[:10%]')
-
     # Build tokenizers
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])
     tokenizer_tgt = get_or_build_tokenizer(config, ds_raw, config['lang_tgt'])
 
     # Keep 90% for training, 10% for validation
     train_ds_size = int(0.9 * len(ds_raw))
-    val_ds_size = len(ds_raw) - train_ds_size
+    val_ds_size =   len(ds_raw) - train_ds_size
+    print(f"Train size: {train_ds_size} \n Test size: {val_ds_size}")
     train_ds_raw, val_ds_raw = random_split(ds_raw, [train_ds_size, val_ds_size])
 
     train_ds = BilingualDataset(train_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
@@ -192,7 +192,8 @@ def train_model(config):
     print("Using device:", device)
 
     # Make sure the weights folder exists
-    Path(config['model_folder']).mkdir(parents=True, exist_ok=True)
+    model_folder = f"{config['datasource']}_{config['model_folder']}"
+    Path(model_folder).mkdir(parents=True, exist_ok=True)
 
     train_dataloader, val_dataloader, tokenizer_src, tokenizer_tgt = get_ds(config)
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)

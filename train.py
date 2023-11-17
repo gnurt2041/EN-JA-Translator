@@ -138,7 +138,10 @@ def get_or_build_tokenizer(config, ds, lang):
 
 def get_ds(config):
     # It only has the train split, so we divide it overselves
-    ds_raw = load_dataset(f"{config['datasource']}", f"{config['lang_src']}-{config['lang_tgt']}", split='train')
+    if config['datasource'] == 'opus100':
+        ds_raw = load_dataset(f"{config['datasource']}", f"{config['lang_src']}-{config['lang_tgt']}", split='train')
+    elif config['datasource'] == 'iwslt2017':
+        ds_raw = load_dataset(f"{config['datasource']}", f"{config['datasource']}-{config['lang_src']}-{config['lang_tgt']}", split='train')
 
     # Build tokenizers
     tokenizer_src = get_or_build_tokenizer(config, ds_raw, config['lang_src'])
